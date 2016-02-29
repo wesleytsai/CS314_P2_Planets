@@ -206,14 +206,20 @@ var generatePlanet = function(size, color, distance, rotationSpeed) {
     pivot.add(mesh);
     var rotSpeedScale = 5;
 
+    var orbit_mat = new THREE.LineDashedMaterial({color: 0x000fff});
+    var orbit_geom = new THREE.CircleGeometry(distance, 64);
+    var orbit = new THREE.Line(orbit_geom, orbit_mat);
+    orbit.rotateX(Math.PI/2);
+
     var planet = {
         pivot: pivot,
         mesh: mesh,
-        rotationSpeed: rotSpeedScale * size / distance
+        rotationSpeed: rotSpeedScale * size / distance,
+        orbit: orbit
     };
 
     return planet;
-}
+};
 
 var planets = [];
 var distance = 10;
@@ -233,6 +239,7 @@ planets['moon'] = generatePlanet(2, color * 2, distance * 2);
 
 for (var planet in planets) {
     scene.add(planets[planet]['pivot']);
+    scene.add(planets[planet]['orbit']);
 }
 
 //Note: Use of parent attribute IS allowed.
