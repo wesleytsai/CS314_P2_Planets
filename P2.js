@@ -196,10 +196,10 @@ scene.add(sun);
 scene.add(sunWire);
 
 var spaceShip = new THREE.Mesh(new THREE.TetrahedronGeometry(2, 0), new THREE.MeshBasicMaterial({color: 0x00ff00}));
-spaceShip.translateOnAxis(new THREE.Vector3(0, 1, 0), 10);
+spaceShip.translateOnAxis(new THREE.Vector3(0, 0.5, 0.5), 10);
 
 var motherShip = new THREE.Mesh(new THREE.TetrahedronGeometry(3, 0), new THREE.MeshBasicMaterial({color: 0xff0000}));
-motherShip.translateOnAxis(new THREE.Vector3(0, 1, 0), 20);
+motherShip.translateOnAxis(new THREE.Vector3(0, 0.5, 0.5), 20);
 
 scene.add(spaceShip);
 scene.add(motherShip);
@@ -280,6 +280,7 @@ function updateSystem() {
 var keyboard = new THREEx.KeyboardState();
 var grid_state = false;
 var pause = false;
+var isMovingMothership = true;
 
 function onKeyDown(event) {
     // TO-DO: BIND KEYS TO YOUR CONTROLS
@@ -288,6 +289,12 @@ function onKeyDown(event) {
         grid_state ? scene.add(grid) : scene.remove(grid);
     } if (keyboard.eventMatches(event, "space")) {
         pause = !pause;
+    } if (keyboard.eventMatches(event, "o")) {
+        isMovingMothership = true;
+    } if (keyboard.eventMatches(event, "p")) {
+        isMovingMothership = false;
+    } if (keyboard.eventMatches(event, "m")) {
+        // Reset Cameras
     }
 
 
