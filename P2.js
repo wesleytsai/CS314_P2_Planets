@@ -196,7 +196,7 @@ scene.add(sun);
 scene.add(sunWire);
 
 //TO-DO: INITIALIZE THE REST OF YOUR PLANETS
-var generatePlanet = function(size, color, distance, rotationSpeed) {
+var generatePlanet = function(size, color, distance) {
     var material = new THREE.MeshBasicMaterial({color: color});
     var geometry = new THREE.SphereGeometry(size, 32, 32);
     var mesh = new THREE.Mesh(geometry, material);
@@ -220,16 +220,18 @@ var distance = 10;
 var color = 0x0055ff;
 
 
-planets['mercury'] = generatePlanet(1, color * 4, distance * 4);
-planets['venus'] = generatePlanet(2, color * 3, distance * 3);
-planets['earth'] = generatePlanet(2, color * 2, distance * 2);
-planets['mars'] = generatePlanet(1, color, distance);
+planets['mercury'] = generatePlanet(1, color * 4, distance);
+planets['venus'] = generatePlanet(2, color * 3, distance * 2);
+planets['earth'] = generatePlanet(2, color * 2, distance * 3);
+planets['mars'] = generatePlanet(1, color, distance * 4);
 planets['saturn'] = generatePlanet(6, color * 5, distance * 5);
 planets['jupiter'] = generatePlanet(5, color * 6, distance * 6);
 planets['neptune'] = generatePlanet(4, color * 7, distance * 7);
 planets['uranus'] = generatePlanet(4, color * 6, distance * 8);
 
-planets['moon'] = generatePlanet(2, color * 2, distance * 2);
+var moon = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), new THREE.MeshBasicMaterial({color: 'white'}));
+moon.translateOnAxis(new THREE.Vector3(0, 0, 1), 4);
+planets['earth']['mesh'].add(moon);
 
 for (var planet in planets) {
     scene.add(planets[planet]['pivot']);
