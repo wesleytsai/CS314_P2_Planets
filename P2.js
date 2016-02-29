@@ -186,23 +186,39 @@ var material = new THREE.MeshBasicMaterial({color: 0xffdd00});
 material.transparent = true;
 material.opacity = 0.5;
 
+var seeThroughMat = new THREE.MeshBasicMaterial({color: 0xffdd00});
+seeThroughMat.transparent = true;
+seeThroughMat.opacity = 0;
+
 var sun = new THREE.Mesh(geometry, material);
 var sunWire = new THREE.Line(geometry, material);
 scene.add(sun);
 scene.add(sunWire);
 
 //TO-DO: INITIALIZE THE REST OF YOUR PLANETS
-var generatePlanet = function(size, color, distance) {
+var generatePlanet = function(size, color, distance, rotationSpeed) {
     var material = new THREE.MeshBasicMaterial({color: color});
     var geometry = new THREE.SphereGeometry(size, 32, 32);
     var mesh = new THREE.Mesh(geometry, material);
     mesh.translateZ(distance);
-    return mesh;
+
+    var pivot = new THREE.Mesh(geometry, seeThroughMat);
+    pivot.add(mesh);
+    var rotSpeedScale = 5;
+
+    var planet = {
+        pivot: pivot,
+        mesh: mesh,
+        rotationSpeed: rotSpeedScale * size / distance
+    };
+
+    return planet;
 }
 
 var planets = [];
 var distance = 10;
 var color = 0x0055ff;
+
 
 planets['mars'] = generatePlanet(2, color, distance);
 planets['earth'] = generatePlanet(2, color * 2, distance * 2);
@@ -213,19 +229,25 @@ planets['jupiter'] = generatePlanet(5, color * 6, distance * 6);
 planets['neptune'] = generatePlanet(5, color * 7, distance * 7);
 planets['uranus'] = generatePlanet(5, color * 6, distance * 8);
 
-for (var mesh in planets) {
-    planets[mesh].parent = sun;
-    scene.add(planets[mesh]);
+for (var planet in planets) {
+    scene.add(planets[planet]['pivot']);
 }
 
 //Note: Use of parent attribute IS allowed.
-//Hint: Keep hierarchies in mind! 
+//Hint: Keep hierarchies in mind!
 
 var clock = new THREE.Clock(true);
+var lastUpdate = clock.getElapsedTime();
 function updateSystem() {
-    for (var mesh in planets) {
-        planets[mesh].rotateY(20);
-        //planets[mesh].
+    var secondsPassed = (clock.getElapsedTime() - lastUpdate);
+    lastUpdate = clock.getElapsedTime();
+
+    var localRotSpeed = 1;
+
+    sun.rotateY(localRotSpeed * secondsPassed);
+    for (var planet in planets) {
+        planets[planet]['pivot'].rotateY(planets[planet]['rotationSpeed'] * secondsPassed);
+        planets[planet]['mesh'].rotateY(localRotSpeed * secondsPassed);
     }
     // ANIMATE YOUR SOLAR SYSTEM HERE.
 
