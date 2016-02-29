@@ -230,6 +230,15 @@ var generatePlanet = function(size, color, distance) {
     return planet;
 };
 
+
+var generateSaturnRing = function(r) {
+    var geom = new THREE.TorusGeometry(r, r/100, 16, 100);
+    var material = new THREE.MeshBasicMaterial({color: 0xfff000});
+    var ring = new THREE.Mesh(geom, material);
+    return ring
+};
+
+
 var planets = [];
 var distance = 10;
 var color = 0x0055ff;
@@ -250,6 +259,17 @@ planets['earth']['mesh'].add(moon);
 for (var planet in planets) {
     scene.add(planets[planet]['pivot']);
     scene.add(planets[planet]['orbit']);
+    var NUM_SATURN_RINGS = 4;
+    var SATURN_RING_START_RADIUS = 7;
+    if (planet == 'saturn') {
+        for (var i=SATURN_RING_START_RADIUS;
+             i<SATURN_RING_START_RADIUS+NUM_SATURN_RINGS; i++) {
+            var ring = generateSaturnRing(i);
+            ring.rotateX(Math.PI/2);
+            planets[planet]['mesh'].add(ring);
+        }
+    }
+
 }
 
 //Note: Use of parent attribute IS allowed.
