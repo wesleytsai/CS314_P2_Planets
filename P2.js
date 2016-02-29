@@ -195,6 +195,15 @@ var sunWire = new THREE.Line(geometry, material);
 scene.add(sun);
 scene.add(sunWire);
 
+var spaceShip = new THREE.Mesh(new THREE.TetrahedronGeometry(2, 0), new THREE.MeshBasicMaterial({color: 0x00ff00}));
+spaceShip.translateOnAxis(new THREE.Vector3(0, 1, 0), 10);
+
+var motherShip = new THREE.Mesh(new THREE.TetrahedronGeometry(3, 0), new THREE.MeshBasicMaterial({color: 0xff0000}));
+motherShip.translateOnAxis(new THREE.Vector3(0, 1, 0), 20);
+
+scene.add(spaceShip);
+scene.add(motherShip);
+
 //TO-DO: INITIALIZE THE REST OF YOUR PLANETS
 var generatePlanet = function(size, color, distance) {
     var material = new THREE.MeshBasicMaterial({color: color});
@@ -225,7 +234,6 @@ var planets = [];
 var distance = 10;
 var color = 0x0055ff;
 
-
 planets['mercury'] = generatePlanet(1, color * 4, distance);
 planets['venus'] = generatePlanet(2, color * 3, distance * 2);
 planets['earth'] = generatePlanet(2, color * 2, distance * 3);
@@ -247,20 +255,23 @@ for (var planet in planets) {
 //Note: Use of parent attribute IS allowed.
 //Hint: Keep hierarchies in mind!
 
+
+
 var clock = new THREE.Clock(true);
 var lastUpdate = clock.getElapsedTime();
 function updateSystem() {
     var secondsPassed = (clock.getElapsedTime() - lastUpdate);
     lastUpdate = clock.getElapsedTime();
 
-    var localRotSpeed = 1;
-
-    sun.rotateY(localRotSpeed * secondsPassed);
-    for (var planet in planets) {
-        planets[planet]['pivot'].rotateY(planets[planet]['rotationSpeed'] * secondsPassed);
-        planets[planet]['mesh'].rotateY(localRotSpeed * secondsPassed);
-    }
     // ANIMATE YOUR SOLAR SYSTEM HERE.
+    if (!pause) {
+        var localRotSpeed = 1;
+        sun.rotateY(localRotSpeed * secondsPassed);
+        for (var planet in planets) {
+            planets[planet]['pivot'].rotateY(planets[planet]['rotationSpeed'] * secondsPassed);
+            planets[planet]['mesh'].rotateY(localRotSpeed * secondsPassed);
+        }
+    }
 
 }
 
@@ -268,13 +279,17 @@ function updateSystem() {
 // Hint: Pay careful attention to how the keys already specified work!
 var keyboard = new THREEx.KeyboardState();
 var grid_state = false;
+var pause = false;
 
 function onKeyDown(event) {
     // TO-DO: BIND KEYS TO YOUR CONTROLS
     if (keyboard.eventMatches(event, "shift+g")) {  // Reveal/Hide helper grid
         grid_state = !grid_state;
         grid_state ? scene.add(grid) : scene.remove(grid);
+    } if (keyboard.eventMatches(event, "space")) {
+        pause = !pause;
     }
+
 
 }
 keyboard.domElement.addEventListener('keydown', onKeyDown);
