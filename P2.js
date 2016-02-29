@@ -190,10 +190,10 @@ var sunWire = new THREE.Line(geometry, material);
 scene.add(sun);
 scene.add(sunWire);
 
-var spaceShip = new THREE.Mesh(new THREE.TetrahedronGeometry(2, 0), new THREE.MeshBasicMaterial({color: 0x00ff00}));
+var spaceShip = new THREE.Mesh(new THREE.TetrahedronGeometry(2, 0), new THREE.MeshBasicMaterial({color: getRandomColor()}));
 spaceShip.translateOnAxis(new THREE.Vector3(0, 0.5, 0.5), 10);
 
-var motherShip = new THREE.Mesh(new THREE.TetrahedronGeometry(3, 0), new THREE.MeshBasicMaterial({color: 0xff0000}));
+var motherShip = new THREE.Mesh(new THREE.TetrahedronGeometry(3, 0), new THREE.MeshBasicMaterial({color: getRandomColor()}));
 motherShip.translateOnAxis(new THREE.Vector3(0, 0.5, 0.5), 20);
 
 scene.add(spaceShip);
@@ -228,19 +228,18 @@ var generatePlanet = function(size, color, distance) {
 
 var generateSaturnRing = function(r) {
     var geom = new THREE.TorusGeometry(r, r/100, 16, 100);
-    var material = new THREE.MeshBasicMaterial({color: 0xfff000});
+    var material = new THREE.MeshBasicMaterial({color: getRandomColor()});
     var ring = new THREE.Mesh(geom, material);
     return ring
 };
 
 
-var planets = [];
-var distance = 10;
-var color = 0x0055ff;
-
 function getRandomColor() {
     return Math.random() * 0xFFFFFF;
 }
+
+var planets = [];
+var distance = 10;
 
 planets['mercury'] = generatePlanet(1, getRandomColor(), distance);
 planets['venus'] = generatePlanet(2, getRandomColor(), distance * 2);
