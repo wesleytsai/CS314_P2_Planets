@@ -206,7 +206,7 @@ var generatePlanet = function(size, color, distance) {
     pivot.add(mesh);
     var rotSpeedScale = 5;
 
-    var orbit_mat = new THREE.LineDashedMaterial({color: 0x000fff});
+    var orbit_mat = new THREE.LineDashedMaterial({color: 0xffffff});
     var orbit_geom = new THREE.CircleGeometry(distance, 64);
     var orbit = new THREE.Line(orbit_geom, orbit_mat);
     orbit.rotateX(Math.PI/2);
