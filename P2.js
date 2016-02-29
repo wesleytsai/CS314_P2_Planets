@@ -181,19 +181,52 @@ var grid = new THREE.Line(gridGeometry, gridMaterial, THREE.LinePieces);
 // Create Solar System
 var geometry = new THREE.SphereGeometry(5, 32, 32);
 generateVertexColors(geometry);
-var material = new THREE.MeshBasicMaterial({color: 0xffff00});
-var sun = new THREE.Mesh(geometry, material);
-scene.add(sun);
 
+var material = new THREE.MeshBasicMaterial({color: 0xffdd00});
+material.transparent = true;
+material.opacity = 0.5;
+
+var sun = new THREE.Mesh(geometry, material);
+var sunWire = new THREE.Line(geometry, material);
+scene.add(sun);
+scene.add(sunWire);
 
 //TO-DO: INITIALIZE THE REST OF YOUR PLANETS
+var generatePlanet = function(size, color, distance) {
+    var material = new THREE.MeshBasicMaterial({color: color});
+    var geometry = new THREE.SphereGeometry(size, 32, 32);
+    var mesh = new THREE.Mesh(geometry, material);
+    mesh.translateZ(distance);
+    return mesh;
+}
 
+var planets = [];
+var distance = 10;
+var color = 0x0055ff;
+
+planets['mars'] = generatePlanet(2, color, distance);
+planets['earth'] = generatePlanet(2, color * 2, distance * 2);
+planets['venus'] = generatePlanet(2, color * 3, distance * 3);
+planets['mercury'] = generatePlanet(2, color * 4, distance * 4);
+planets['saturn'] = generatePlanet(5, color * 5, distance * 5);
+planets['jupiter'] = generatePlanet(5, color * 6, distance * 6);
+planets['neptune'] = generatePlanet(5, color * 7, distance * 7);
+planets['uranus'] = generatePlanet(5, color * 6, distance * 8);
+
+for (var mesh in planets) {
+    planets[mesh].parent = sun;
+    scene.add(planets[mesh]);
+}
 
 //Note: Use of parent attribute IS allowed.
 //Hint: Keep hierarchies in mind! 
 
 var clock = new THREE.Clock(true);
 function updateSystem() {
+    for (var mesh in planets) {
+        planets[mesh].rotateY(20);
+        //planets[mesh].
+    }
     // ANIMATE YOUR SOLAR SYSTEM HERE.
 
 }
