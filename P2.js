@@ -101,30 +101,25 @@ renderer.shadowMap.enabled = true;
 canvas.appendChild(renderer.domElement);
 
 // Creating the two cameras and adding them to the scene.
-var view = views[0];
-camera_MotherShip = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
-camera_MotherShip.position.x = view.eye[0];
-camera_MotherShip.position.y = view.eye[1];
-camera_MotherShip.position.z = view.eye[2];
-camera_MotherShip.up.x = view.up[0];
-camera_MotherShip.up.y = view.up[1];
-camera_MotherShip.up.z = view.up[2];
-camera_MotherShip.lookAt(scene.position);
-view.camera = camera_MotherShip;
-scene.add(view.camera);
+function resetCameraToView(camera, view) {
+    camera.position.x = view.eye[0];
+    camera.position.y = view.eye[1];
+    camera.position.z = view.eye[2];
+    camera.up.x = view.up[0];
+    camera.up.y = view.up[1];
+    camera.up.z = view.up[2];
+    camera.lookAt(scene.position);
+}
 
-var view = views[1];
-camera_ScoutShip = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
-camera_ScoutShip.position.x = view.eye[0];
-camera_ScoutShip.position.y = view.eye[1];
-camera_ScoutShip.position.z = view.eye[2];
-camera_ScoutShip.up.x = view.up[0];
-camera_ScoutShip.up.y = view.up[1];
-camera_ScoutShip.up.z = view.up[2];
-camera_ScoutShip.lookAt(scene.position);
-view.camera = camera_ScoutShip;
-scene.add(view.camera);
+var camera_MotherShip = new THREE.PerspectiveCamera(views[0].fov, window.innerWidth / window.innerHeight, 1, 10000);
+resetCameraToView(camera_MotherShip, views[0]);
+views[0].camera = camera_MotherShip;
+scene.add(views[0].camera);
 
+var camera_ScoutShip = new THREE.PerspectiveCamera(views[1].fov, window.innerWidth / window.innerHeight, 1, 10000);
+resetCameraToView(camera_ScoutShip, views[1]);
+views[1].camera = camera_ScoutShip;
+scene.add(views[1].camera);
 
 // ADDING THE AXIS DEBUG VISUALIZATIONS
 scene.add(x_axis);
@@ -234,16 +229,20 @@ var planets = [];
 var distance = 10;
 var color = 0x0055ff;
 
-planets['mercury'] = generatePlanet(1, color * 4, distance);
-planets['venus'] = generatePlanet(2, color * 3, distance * 2);
-planets['earth'] = generatePlanet(2, color * 2, distance * 3);
-planets['mars'] = generatePlanet(1, color, distance * 4);
-planets['saturn'] = generatePlanet(6, color * 5, distance * 5);
-planets['jupiter'] = generatePlanet(5, color * 6, distance * 6);
-planets['neptune'] = generatePlanet(4, color * 7, distance * 7);
-planets['uranus'] = generatePlanet(4, color * 6, distance * 8);
+function getRandomColor() {
+    return Math.random() * 0xFFFFFF;
+}
 
-var moon = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), new THREE.MeshBasicMaterial({color: 'white'}));
+planets['mercury'] = generatePlanet(1, getRandomColor(), distance);
+planets['venus'] = generatePlanet(2, getRandomColor(), distance * 2);
+planets['earth'] = generatePlanet(2, getRandomColor(), distance * 3);
+planets['mars'] = generatePlanet(1, getRandomColor(), distance * 4);
+planets['saturn'] = generatePlanet(6, getRandomColor(), distance * 5);
+planets['jupiter'] = generatePlanet(5, getRandomColor(), distance * 6);
+planets['neptune'] = generatePlanet(4, getRandomColor(), distance * 7);
+planets['uranus'] = generatePlanet(4, getRandomColor(), distance * 8);
+
+var moon = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), new THREE.MeshBasicMaterial({color: getRandomColor()}));
 moon.translateOnAxis(new THREE.Vector3(0, 0, 1), 4);
 planets['earth']['mesh'].add(moon);
 
@@ -280,21 +279,52 @@ function updateSystem() {
 var keyboard = new THREEx.KeyboardState();
 var grid_state = false;
 var pause = false;
-var isMovingMothership = true;
+var currentCamera = camera_MotherShip;
+var moveDistance = 5;
 
 function onKeyDown(event) {
     // TO-DO: BIND KEYS TO YOUR CONTROLS
     if (keyboard.eventMatches(event, "shift+g")) {  // Reveal/Hide helper grid
         grid_state = !grid_state;
         grid_state ? scene.add(grid) : scene.remove(grid);
-    } if (keyboard.eventMatches(event, "space")) {
+    } else if (keyboard.eventMatches(event, "space")) {
         pause = !pause;
-    } if (keyboard.eventMatches(event, "o")) {
-        isMovingMothership = true;
-    } if (keyboard.eventMatches(event, "p")) {
-        isMovingMothership = false;
-    } if (keyboard.eventMatches(event, "m")) {
-        // Reset Cameras
+    } else if (keyboard.eventMatches(event, "o")) {
+        currentCamera = camera_MotherShip;
+    } else if (keyboard.eventMatches(event, "p")) {
+        currentCamera = camera_ScoutShip;
+    } else if (keyboard.eventMatches(event, "m")) {
+        for (var i in views) {
+            resetCameraToView(views[i].camera, views[i]);
+        }
+    } else if (keyboard.eventMatches(event, "shift+x")) {
+        currentCamera.translateX(-moveDistance);
+    } else if (keyboard.eventMatches(event, "x")) {
+        currentCamera.translateX(moveDistance);
+    } else if (keyboard.eventMatches(event, "shift+Y")) {
+        currentCamera.translateY(-moveDistance);
+    } else if (keyboard.eventMatches(event, "y")) {
+        currentCamera.translateY(moveDistance);
+    } else if (keyboard.eventMatches(event, "shift+Z")) {
+        currentCamera.translateZ(-moveDistance);
+    } else if (keyboard.eventMatches(event, "z")) {
+        currentCamera.translateZ(moveDistance);
+    } else if (keyboard.eventMatches(event, "a")) {
+    } else if (keyboard.eventMatches(event, "A")) {
+    } else if (keyboard.eventMatches(event, "b")) {
+    } else if (keyboard.eventMatches(event, "B")) {
+    } else if (keyboard.eventMatches(event, "c")) {
+    } else if (keyboard.eventMatches(event, "C")) {
+    } else if (keyboard.eventMatches(event, "d")) {
+    } else if (keyboard.eventMatches(event, "D")) {
+    } else if (keyboard.eventMatches(event, "e")) {
+    } else if (keyboard.eventMatches(event, "E")) {
+    } else if (keyboard.eventMatches(event, "f")) {
+    } else if (keyboard.eventMatches(event, "F")) {
+    } else if (keyboard.eventMatches(event, "k")) {
+    } else if (keyboard.eventMatches(event, "K")) {
+    } else if (keyboard.eventMatches(event, "l")) {
+        // Lookat mode
     }
 
 
