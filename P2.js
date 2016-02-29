@@ -220,14 +220,16 @@ var distance = 10;
 var color = 0x0055ff;
 
 
-planets['mars'] = generatePlanet(2, color, distance);
-planets['earth'] = generatePlanet(2, color * 2, distance * 2);
+planets['mercury'] = generatePlanet(1, color * 4, distance * 4);
 planets['venus'] = generatePlanet(2, color * 3, distance * 3);
-planets['mercury'] = generatePlanet(2, color * 4, distance * 4);
-planets['saturn'] = generatePlanet(5, color * 5, distance * 5);
+planets['earth'] = generatePlanet(2, color * 2, distance * 2);
+planets['mars'] = generatePlanet(1, color, distance);
+planets['saturn'] = generatePlanet(6, color * 5, distance * 5);
 planets['jupiter'] = generatePlanet(5, color * 6, distance * 6);
-planets['neptune'] = generatePlanet(5, color * 7, distance * 7);
-planets['uranus'] = generatePlanet(5, color * 6, distance * 8);
+planets['neptune'] = generatePlanet(4, color * 7, distance * 7);
+planets['uranus'] = generatePlanet(4, color * 6, distance * 8);
+
+planets['moon'] = generatePlanet(2, color * 2, distance * 2);
 
 for (var planet in planets) {
     scene.add(planets[planet]['pivot']);
