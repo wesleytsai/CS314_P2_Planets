@@ -218,7 +218,7 @@ var generatePlanet = function(size, color, distance) {
     var planet = {
         pivot: pivot,
         mesh: mesh,
-        rotationSpeed: rotSpeedScale * size / distance,
+        rotationSpeed: rotSpeedScale * (1.0/Math.sqrt(distance)),
         orbit: orbit
     };
 
@@ -245,8 +245,8 @@ planets['mercury'] = generatePlanet(1, getRandomColor(), distance);
 planets['venus'] = generatePlanet(2, getRandomColor(), distance * 2);
 planets['earth'] = generatePlanet(2, getRandomColor(), distance * 3);
 planets['mars'] = generatePlanet(1, getRandomColor(), distance * 4);
-planets['saturn'] = generatePlanet(6, getRandomColor(), distance * 5);
-planets['jupiter'] = generatePlanet(5, getRandomColor(), distance * 6);
+planets['jupiter'] = generatePlanet(5, getRandomColor(), distance * 5);
+planets['saturn'] = generatePlanet(6, getRandomColor(), distance * 6);
 planets['neptune'] = generatePlanet(4, getRandomColor(), distance * 7);
 planets['uranus'] = generatePlanet(4, getRandomColor(), distance * 8);
 
