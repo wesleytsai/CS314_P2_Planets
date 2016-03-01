@@ -75,6 +75,7 @@ var views = [
         up: [0, 1, 0],
         fov: 45,
         updateCamera: function (camera, scene, mouseX, mouseY) {
+            camera.lookAt(camera.lookAtPoint.position);
         }
     },
     {
@@ -87,6 +88,7 @@ var views = [
         up: [0, 1, 0],
         fov: 45,
         updateCamera: function (camera, scene, mouseX, mouseY) {
+            camera.lookAt(camera.lookAtPoint.position);
         }
     }
 ];
@@ -108,7 +110,9 @@ function resetCameraToView(camera, view) {
     camera.up.x = view.up[0];
     camera.up.y = view.up[1];
     camera.up.z = view.up[2];
-    camera.lookAt(scene.position);
+    camera.lookAtPoint = new THREE.Object3D();
+    camera.lookAtPoint.position = scene.position.clone();
+    camera.add(camera.lookAtPoint);
 }
 
 var camera_MotherShip = new THREE.PerspectiveCamera(views[0].fov, window.innerWidth / window.innerHeight, 1, 10000);
@@ -116,10 +120,17 @@ resetCameraToView(camera_MotherShip, views[0]);
 views[0].camera = camera_MotherShip;
 scene.add(views[0].camera);
 
+
 var camera_ScoutShip = new THREE.PerspectiveCamera(views[1].fov, window.innerWidth / window.innerHeight, 1, 10000);
 resetCameraToView(camera_ScoutShip, views[1]);
 views[1].camera = camera_ScoutShip;
 scene.add(views[1].camera);
+
+var scoutShip = new THREE.Mesh(new THREE.TetrahedronGeometry(2, 0), new THREE.MeshBasicMaterial({color: getRandomColor()}));
+var motherShip = new THREE.Mesh(new THREE.TetrahedronGeometry(3, 0), new THREE.MeshBasicMaterial({color: getRandomColor()}));
+
+camera_MotherShip.add(motherShip);
+camera_ScoutShip.add(scoutShip);
 
 // ADDING THE AXIS DEBUG VISUALIZATIONS
 scene.add(x_axis);
@@ -190,14 +201,6 @@ var sunWire = new THREE.Line(geometry, material);
 scene.add(sun);
 scene.add(sunWire);
 
-var spaceShip = new THREE.Mesh(new THREE.TetrahedronGeometry(2, 0), new THREE.MeshBasicMaterial({color: getRandomColor()}));
-spaceShip.translateOnAxis(new THREE.Vector3(0, 0.5, 0.5), 10);
-
-var motherShip = new THREE.Mesh(new THREE.TetrahedronGeometry(3, 0), new THREE.MeshBasicMaterial({color: getRandomColor()}));
-motherShip.translateOnAxis(new THREE.Vector3(0, 0.5, 0.5), 20);
-
-scene.add(spaceShip);
-scene.add(motherShip);
 
 //TO-DO: INITIALIZE THE REST OF YOUR PLANETS
 var generatePlanet = function(size, color, distance) {
@@ -300,11 +303,18 @@ var keyboard = new THREEx.KeyboardState();
 var grid_state = false;
 var pause = false;
 var currentCamera = camera_MotherShip;
-var moveDistance = 5;
+var moveDistance = 2;
+var rotationStep = 0.05;
+var isInLookAtMode = true;
 
 function onKeyDown(event) {
     // TO-DO: BIND KEYS TO YOUR CONTROLS
-    if (keyboard.eventMatches(event, "shift+g")) {  // Reveal/Hide helper grid
+    // Stateless commands
+    if (keyboard.eventMatches(event, "l")) {  // Reveal/Hide helper grid
+        isInLookAtMode = true;
+    } else if (keyboard.eventMatches(event, "r")) {
+        isInLookAtMode = false;
+    } else if (keyboard.eventMatches(event, "shift+g")) {  // Reveal/Hide helper grid
         grid_state = !grid_state;
         grid_state ? scene.add(grid) : scene.remove(grid);
     } else if (keyboard.eventMatches(event, "space")) {
@@ -317,38 +327,89 @@ function onKeyDown(event) {
         for (var i in views) {
             resetCameraToView(views[i].camera, views[i]);
         }
-    } else if (keyboard.eventMatches(event, "shift+x")) {
-        currentCamera.translateX(-moveDistance);
-    } else if (keyboard.eventMatches(event, "x")) {
-        currentCamera.translateX(moveDistance);
-    } else if (keyboard.eventMatches(event, "shift+Y")) {
-        currentCamera.translateY(-moveDistance);
-    } else if (keyboard.eventMatches(event, "y")) {
-        currentCamera.translateY(moveDistance);
-    } else if (keyboard.eventMatches(event, "shift+Z")) {
-        currentCamera.translateZ(-moveDistance);
-    } else if (keyboard.eventMatches(event, "z")) {
-        currentCamera.translateZ(moveDistance);
-    } else if (keyboard.eventMatches(event, "a")) {
-    } else if (keyboard.eventMatches(event, "A")) {
-    } else if (keyboard.eventMatches(event, "b")) {
-    } else if (keyboard.eventMatches(event, "B")) {
-    } else if (keyboard.eventMatches(event, "c")) {
-    } else if (keyboard.eventMatches(event, "C")) {
-    } else if (keyboard.eventMatches(event, "d")) {
-    } else if (keyboard.eventMatches(event, "D")) {
-    } else if (keyboard.eventMatches(event, "e")) {
-    } else if (keyboard.eventMatches(event, "E")) {
-    } else if (keyboard.eventMatches(event, "f")) {
-    } else if (keyboard.eventMatches(event, "F")) {
+    } else if (keyboard.eventMatches(event, "shift+K")) {
+        rotationStep /= 2;
+        moveDistance /= 2;
     } else if (keyboard.eventMatches(event, "k")) {
-    } else if (keyboard.eventMatches(event, "K")) {
-    } else if (keyboard.eventMatches(event, "l")) {
-        // Lookat mode
+        rotationStep *= 2;
+        moveDistance *= 2;
+
+    if (isInLookAtMode) {
+        handleLookAtCommand(event);
+    } else {
+        handleRelativeFlyingCommand(event);
     }
 
 
+
 }
+
+function handleRelativeFlyingCommand(event) {
+    if (keyboard.eventMatches(event, "shift+q")) {
+        // Yaw
+    } else if (keyboard.eventMatches(event, "q")) {
+
+    } else if (keyboard.eventMatches(event, "shift+s")) {
+        // Pitch
+    } else if (keyboard.eventMatches(event, "s")) {
+
+    } else if (keyboard.eventMatches(event, "shift+a")) {
+        // Roll
+    } else if (keyboard.eventMatches(event, "a")) {
+
+    } else if (keyboard.eventMatches(event, "shift+w")) {
+        // Forward / backward
+    } else if (keyboard.eventMatches(event, "w")) {
+
+
+}
+
+function handleLookAtCommand(event) {
+    if (keyboard.eventMatches(event, "shift+x")) {
+        currentCamera.position.x -= moveDistance;
+        currentCamera.lookAtPoint.position.x -= moveDistance;
+    } else if (keyboard.eventMatches(event, "x")) {
+        currentCamera.position.x += moveDistance;
+        currentCamera.lookAtPoint.position.x += moveDistance;
+    } else if (keyboard.eventMatches(event, "shift+Y")) {
+        currentCamera.position.y -= moveDistance;
+        currentCamera.lookAtPoint.position.y -= moveDistance;
+    } else if (keyboard.eventMatches(event, "y")) {
+        currentCamera.position.y += moveDistance;
+        currentCamera.lookAtPoint.position.y += moveDistance;
+    } else if (keyboard.eventMatches(event, "shift+Z")) {
+        currentCamera.position.z -= moveDistance;
+        currentCamera.lookAtPoint.position.z -= moveDistance;
+    } else if (keyboard.eventMatches(event, "z")) {
+        currentCamera.position.z += moveDistance;
+        currentCamera.lookAtPoint.position.z += moveDistance;
+    } else if (keyboard.eventMatches(event, "shift+a")) {
+        currentCamera.lookAtPoint.position.x -= moveDistance;
+    } else if (keyboard.eventMatches(event, "a")) {
+        currentCamera.lookAtPoint.position.x += moveDistance;
+    } else if (keyboard.eventMatches(event, "shift+b")) {
+        currentCamera.lookAtPoint.position.y -= moveDistance;
+    } else if (keyboard.eventMatches(event, "b")) {
+        currentCamera.lookAtPoint.position.y += moveDistance;
+    } else if (keyboard.eventMatches(event, "shift+C")) {
+        currentCamera.lookAtPoint.position.z -= moveDistance;
+    } else if (keyboard.eventMatches(event, "c")) {
+        currentCamera.lookAtPoint.position.z += moveDistance;
+    } else if (keyboard.eventMatches(event, "shift+d")) {
+        currentCamera.up.x -=rotationStep;
+    } else if (keyboard.eventMatches(event, "d")) {
+        currentCamera.up.x +=rotationStep;
+    } else if (keyboard.eventMatches(event, "shift+E")) {
+        currentCamera.up.y -=rotationStep;
+    } else if (keyboard.eventMatches(event, "e")) {
+        currentCamera.up.y +=rotationStep;
+    } else if (keyboard.eventMatches(event, "shift+F")) {
+        currentCamera.up.z -=rotationStep;
+    } else if (keyboard.eventMatches(event, "f")) {
+        currentCamera.up.z +=rotationStep;
+    }
+}
+
 keyboard.domElement.addEventListener('keydown', onKeyDown);
 
 
