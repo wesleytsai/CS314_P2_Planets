@@ -75,7 +75,8 @@ var views = [
         up: [0, 1, 0],
         fov: 45,
         updateCamera: function (camera, scene, mouseX, mouseY) {
-            camera.lookAt(camera.lookAtPoint.position);
+            if (isInLookAtMode)
+                camera.lookAt(camera.lookAtPoint.position);
         }
     },
     {
@@ -88,7 +89,8 @@ var views = [
         up: [0, 1, 0],
         fov: 45,
         updateCamera: function (camera, scene, mouseX, mouseY) {
-            camera.lookAt(camera.lookAtPoint.position);
+            if (isInLookAtMode)
+                camera.lookAt(camera.lookAtPoint.position);
         }
     }
 ];
@@ -310,7 +312,7 @@ var isInLookAtMode = true;
 function onKeyDown(event) {
     // TO-DO: BIND KEYS TO YOUR CONTROLS
     // Stateless commands
-    if (keyboard.eventMatches(event, "l")) {  // Reveal/Hide helper grid
+    if (keyboard.eventMatches(event, "l")) {
         isInLookAtMode = true;
     } else if (keyboard.eventMatches(event, "r")) {
         isInLookAtMode = false;
@@ -333,35 +335,37 @@ function onKeyDown(event) {
     } else if (keyboard.eventMatches(event, "k")) {
         rotationStep *= 2;
         moveDistance *= 2;
+    }
 
     if (isInLookAtMode) {
         handleLookAtCommand(event);
     } else {
         handleRelativeFlyingCommand(event);
     }
-
-
-
 }
 
 function handleRelativeFlyingCommand(event) {
     if (keyboard.eventMatches(event, "shift+q")) {
         // Yaw
+        currentCamera.rotateY(-rotationStep);
     } else if (keyboard.eventMatches(event, "q")) {
-
+        currentCamera.rotateY(-rotationStep);
     } else if (keyboard.eventMatches(event, "shift+s")) {
         // Pitch
+        currentCamera.rotateX(-rotationStep);
     } else if (keyboard.eventMatches(event, "s")) {
+        currentCamera.rotateX(rotationStep);
 
     } else if (keyboard.eventMatches(event, "shift+a")) {
         // Roll
+        currentCamera.rotateZ(-rotationStep);
     } else if (keyboard.eventMatches(event, "a")) {
+        currentCamera.rotateZ(rotationStep);
 
     } else if (keyboard.eventMatches(event, "shift+w")) {
         // Forward / backward
     } else if (keyboard.eventMatches(event, "w")) {
-
-
+    }
 }
 
 function handleLookAtCommand(event) {
