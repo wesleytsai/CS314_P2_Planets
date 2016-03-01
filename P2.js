@@ -227,6 +227,7 @@ var generatePlanet = function(size, color, distance) {
 
 
 var generateSaturnRing = function(r) {
+    r *= 0.8;
     var geom = new THREE.TorusGeometry(r, r/100, 16, 100);
     var material = new THREE.MeshBasicMaterial({color: getRandomColor()});
     var ring = new THREE.Mesh(geom, material);
@@ -241,17 +242,17 @@ function getRandomColor() {
 var planets = [];
 var distance = 10;
 
-planets['mercury'] = generatePlanet(1, getRandomColor(), distance);
-planets['venus'] = generatePlanet(2, getRandomColor(), distance * 2);
-planets['earth'] = generatePlanet(2, getRandomColor(), distance * 3);
-planets['mars'] = generatePlanet(1, getRandomColor(), distance * 4);
-planets['jupiter'] = generatePlanet(5, getRandomColor(), distance * 5);
-planets['saturn'] = generatePlanet(6, getRandomColor(), distance * 6);
-planets['neptune'] = generatePlanet(4, getRandomColor(), distance * 7);
-planets['uranus'] = generatePlanet(4, getRandomColor(), distance * 8);
+planets['mercury'] = generatePlanet(1, getRandomColor(), distance * 0.8);
+planets['venus'] = generatePlanet(1.5, getRandomColor(), distance * 1.5);
+planets['earth'] = generatePlanet(1.8, getRandomColor(), distance * 2.5);
+planets['mars'] = generatePlanet(1.65, getRandomColor(), distance * 3.5);
+planets['jupiter'] = generatePlanet(4, getRandomColor(), distance * 5);
+planets['saturn'] = generatePlanet(3.5, getRandomColor(), distance * 6.5);
+planets['neptune'] = generatePlanet(2.8, getRandomColor(), distance * 7.5);
+planets['uranus'] = generatePlanet(2.6, getRandomColor(), distance * 9);
 
-var moon = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), new THREE.MeshBasicMaterial({color: getRandomColor()}));
-moon.translateOnAxis(new THREE.Vector3(0, 0, 1), 4);
+var moon = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), new THREE.MeshBasicMaterial({color: getRandomColor()}));
+moon.translateOnAxis(new THREE.Vector3(0, 0, 0.9), 4);
 planets['earth']['mesh'].add(moon);
 
 for (var planet in planets) {
