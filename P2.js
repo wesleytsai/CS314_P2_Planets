@@ -75,7 +75,7 @@ var views = [
         up: [0, 1, 0],
         fov: 45,
         updateCamera: function (camera, scene, mouseX, mouseY) {
-            if (isInLookAtMode)
+            if (state == viewState.lookAt)
                 camera.lookAt(camera.lookAtPoint.position);
         }
     },
@@ -89,7 +89,7 @@ var views = [
         up: [0, 1, 0],
         fov: 45,
         updateCamera: function (camera, scene, mouseX, mouseY) {
-            if (isInLookAtMode)
+            if (state == viewState.lookAt)
                 camera.lookAt(camera.lookAtPoint.position);
         }
     }
@@ -128,8 +128,46 @@ resetCameraToView(camera_ScoutShip, views[1]);
 views[1].camera = camera_ScoutShip;
 scene.add(views[1].camera);
 
-var scoutShip = new THREE.Mesh(new THREE.TetrahedronGeometry(2, 0), new THREE.MeshBasicMaterial({color: getRandomColor()}));
-var motherShip = new THREE.Mesh(new THREE.TetrahedronGeometry(3, 0), new THREE.MeshBasicMaterial({color: getRandomColor()}));
+function buildShip(size) {
+    var mat1 = new THREE.MeshBasicMaterial({color: getRandomColor()});
+    var mat2 = new THREE.MeshBasicMaterial({color: getRandomColor()});
+
+    var shipBody = new THREE.Mesh(new THREE.BoxGeometry(size*2.5, size*2, 2*size), mat1);
+
+    function createThrust() {
+        var thruster1 = new THREE.Mesh(new THREE.CylinderGeometry(size/4, size/8, size/2, 8, 8), mat2);
+        thruster1.translateZ(size * 1.1);
+        thruster1.rotateX(Math.PI / 2);
+        return thruster1;
+    }
+    var thruster1 = createThrust();
+    var thruster2 = createThrust();
+    var thruster3 = createThrust();
+
+    thruster2.translateX(size);
+    thruster3.translateX(-size);
+
+    var thruster4 = createThrust();
+    var thruster5 = createThrust();
+    var thruster6 = createThrust();
+    thruster5.translateX(size);
+    thruster6.translateX(-size);
+
+    thruster4.translateZ(size/1.2);
+    thruster5.translateZ(size/1.2);
+    thruster6.translateZ(size/1.2);
+
+    shipBody.add(thruster1);
+    shipBody.add(thruster2);
+    shipBody.add(thruster3);
+    shipBody.add(thruster4);
+    shipBody.add(thruster5);
+    shipBody.add(thruster6);
+
+    return shipBody;
+}
+var scoutShip = buildShip(2);
+var motherShip = buildShip(4);
 
 camera_MotherShip.add(motherShip);
 camera_ScoutShip.add(scoutShip);
@@ -138,7 +176,6 @@ camera_ScoutShip.add(scoutShip);
 scene.add(x_axis);
 scene.add(y_axis);
 scene.add(z_axis);
-
 
 // ADAPT TO WINDOW RESIZE
 function resize() {
@@ -307,17 +344,28 @@ var pause = false;
 var currentCamera = camera_MotherShip;
 var moveDistance = 2;
 var rotationStep = 0.05;
-var isInLookAtMode = true;
 var prevMouseX;
 var prevMouseY;
+var viewState = { lookAt: 0, orbit: 1, relative: 2 }
+var state = viewState.lookAt;
 
 function onKeyDown(event) {
     // TO-DO: BIND KEYS TO YOUR CONTROLS
     // Stateless commands
     if (keyboard.eventMatches(event, "l")) {
-        isInLookAtMode = true;
+        if (currentCamera.orbitPlanet != null) {
+            currentCamera.orbitPlanet.remove(currentCamera);
+            currentCamera.orbitPlanet = null;
+        }
+        state = viewState.lookAt;
     } else if (keyboard.eventMatches(event, "r")) {
-        isInLookAtMode = false;
+        if (currentCamera.orbitPlanet != null) {
+            currentCamera.orbitPlanet.remove(currentCamera);
+            currentCamera.orbitPlanet = null;
+        }
+        state = viewState.relative;
+    } else if (keyboard.eventMatches(event, "g")) {
+        state = viewState.orbit;
     } else if (keyboard.eventMatches(event, "shift+g")) {  // Reveal/Hide helper grid
         grid_state = !grid_state;
         grid_state ? scene.add(grid) : scene.remove(grid);
@@ -339,11 +387,45 @@ function onKeyDown(event) {
         moveDistance *= 2;
     }
 
-    if (isInLookAtMode) {
+    if (state == viewState.lookAt) {
         handleLookAtCommand(event);
-    } else {
+    } else if (state == viewState.relative) {
         handleRelativeFlyingCommand(event);
+    } else if (state == viewState.orbit) {
+        handleOrbitCommand(event);
     }
+}
+
+function handleOrbitCommand(event) {
+    if (keyboard.eventMatches(event, "shift+W")) {
+        currentCamera.translateZ(-moveDistance);
+    } else if (keyboard.eventMatches(event, "w")) {
+        currentCamera.translateZ(moveDistance);
+    } else if (keyboard.eventMatches(event, "1")) {
+        orbitPlanet(currentCamera, planets['mercury']['mesh'])
+    } else if (keyboard.eventMatches(event, "2")) {
+        orbitPlanet(currentCamera, planets['venus']['mesh'])
+    } else if (keyboard.eventMatches(event, "3")) {
+        orbitPlanet(currentCamera, planets['earth']['mesh'])
+    } else if (keyboard.eventMatches(event, "4")) {
+        orbitPlanet(currentCamera, planets['mars']['mesh'])
+    } else if (keyboard.eventMatches(event, "5")) {
+        orbitPlanet(currentCamera, planets['jupiter']['mesh'])
+    } else if (keyboard.eventMatches(event, "6")) {
+        orbitPlanet(currentCamera, planets['saturn']['mesh'])
+    } else if (keyboard.eventMatches(event, "7")) {
+        orbitPlanet(currentCamera, planets['uranus']['mesh'])
+    } else if (keyboard.eventMatches(event, "8")) {
+        orbitPlanet(currentCamera, planets['neptune']['mesh'])
+    }
+}
+
+function orbitPlanet(camera, planet) {
+    camera.position = planet.position.clone();
+    camera.position.z += 1;
+    camera.lookAt(planet.position);
+    camera.orbitPlanet = planet;
+    planet.add(camera);
 }
 
 function handleRelativeFlyingCommand(event) {
