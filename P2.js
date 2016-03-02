@@ -308,6 +308,8 @@ var currentCamera = camera_MotherShip;
 var moveDistance = 2;
 var rotationStep = 0.05;
 var isInLookAtMode = true;
+var prevMouseX;
+var prevMouseY;
 
 function onKeyDown(event) {
     // TO-DO: BIND KEYS TO YOUR CONTROLS
@@ -349,7 +351,7 @@ function handleRelativeFlyingCommand(event) {
         // Yaw
         currentCamera.rotateY(-rotationStep);
     } else if (keyboard.eventMatches(event, "q")) {
-        currentCamera.rotateY(-rotationStep);
+        currentCamera.rotateY(rotationStep);
     } else if (keyboard.eventMatches(event, "shift+s")) {
         // Pitch
         currentCamera.rotateX(-rotationStep);
@@ -363,8 +365,16 @@ function handleRelativeFlyingCommand(event) {
         currentCamera.rotateZ(rotationStep);
 
     } else if (keyboard.eventMatches(event, "shift+w")) {
+        currentCamera.translateZ(-moveDistance);
         // Forward / backward
     } else if (keyboard.eventMatches(event, "w")) {
+        currentCamera.translateZ(moveDistance);
+    } else if (keyboard.eventMatches(event, "t")) {
+        // NOTE WES: There is small mouse drift
+        var dX = mouseX - prevMouseX;
+        var dY = mouseY - prevMouseY;
+        currentCamera.rotateY(dX);
+        currentCamera.rotateX(dY);
     }
 }
 
@@ -414,8 +424,15 @@ function handleLookAtCommand(event) {
     }
 }
 
-keyboard.domElement.addEventListener('keydown', onKeyDown);
+function onMouseMove(event) {
+    prevMouseX = mouseX;
+    prevMouseY = mouseY;
+    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseY = (event.clientY / window.innerHeight) * 2 - 1;
+}
 
+keyboard.domElement.addEventListener('keydown', onKeyDown);
+window.addEventListener('mousemove', onMouseMove, false);
 
 // SETUP UPDATE CALL-BACK
 // Hint: It is useful to understand what is being updated here, the effect, and why.
